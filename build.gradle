@@ -1,0 +1,32 @@
+group 'com.epam.trainings.java.jf.fp'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'war'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+    mavenLocal()
+    maven{url 'https://jitpack.io'}
+}
+
+configurations{
+    testCompile.extendsFrom compileOnly
+}
+//this turns logging on in test:
+test.testLogging.showStandardStreams=true
+
+
+dependencies {
+
+    compile 'ch.qos.logback:logback-classic:+',
+            'io.javaslang:javaslang:+'
+
+    compileOnly 'org.projectlombok:lombok:+'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:+',
+            'org.hamcrest:java-hamcrest:+'
+}
