@@ -23,8 +23,13 @@ test.testLogging.showStandardStreams=true
 
 dependencies {
 
+
     compile 'ch.qos.logback:logback-classic:+',
             'io.javaslang:javaslang:+'
+
+
+    providedCompile 'org.apache.tomcat:tomcat-api:+',
+     'org.apache.tomcat:tomcat-jsp-api:+'
 
     compileOnly 'org.projectlombok:lombok:+'
     testCompile 'org.junit.jupiter:junit-jupiter-api:+',
