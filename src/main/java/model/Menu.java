@@ -1,9 +1,11 @@
 package model;
 
+import lombok.Data;
+
 import java.time.LocalTime;
 
+@Data
 public class Menu {
-
 
 //    id          VARCHAR(100) PRIMARY KEY,
     private String id;

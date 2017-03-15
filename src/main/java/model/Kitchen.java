@@ -1,5 +1,9 @@
 package model;
 
+
+import lombok.Data;
+
+@Data
 public class Kitchen {
 
 //    id            INT AUTO_INCREMENT PRIMARY KEY,

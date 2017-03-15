@@ -1,10 +1,12 @@
 package model;
 
 
+import lombok.Data;
+
 import java.time.LocalDate;
 
+@Data
 public class Administration {
-
 
 //    id         INT AUTO_INCREMENT PRIMARY KEY,
     private int id;
