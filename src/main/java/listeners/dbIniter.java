@@ -2,6 +2,7 @@ package listeners;
 
 
 import lombok.SneakyThrows;
+import lombok.extern.java.Log;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContextEvent;
@@ -14,7 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.regex.Matcher;
+
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -30,12 +31,13 @@ public class dbIniter implements ServletContextListener {
 
         Pattern pat=Pattern.compile("^\\d+\\.sql$");
 
-        Path sqlDirPath=Paths.get(sce.getServletContext().getContextPath(),"/sql");;
-
+        Path sqlDirPath=Paths.get(
+                sce.getServletContext().getRealPath("/WEB-INF/classes/sql"));
+        System.out.println(sqlDirPath);
         try(Connection connection=dataSource.getConnection();
             Statement statement=connection.createStatement();
             DirectoryStream<Path> paths=Files.newDirectoryStream(sqlDirPath)){
-            for(Path filepath:sqlDirPath)
+            for(Path filepath:paths)
                 if(pat.matcher(filepath.toFile().getName()).find()) {
                     statement.addBatch(
                             Files.lines(filepath)

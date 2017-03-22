@@ -25,7 +25,8 @@ dependencies {
 
 
     compile 'ch.qos.logback:logback-classic:+',
-            'io.javaslang:javaslang:+'
+            'io.javaslang:javaslang:+',
+            'com.h2database:h2:+'
 
 
     providedCompile 'org.apache.tomcat:tomcat-api:+',

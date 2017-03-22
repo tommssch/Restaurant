@@ -12,7 +12,7 @@ CREATE TABLE Administration (
   lastname   VARCHAR(100) NOT NULL,
   fathername VARCHAR(100) NOT NULL,
   dob        DATE,
-  experiance INT
+  experience INT
 );
 
 CREATE TABLE Menu (
