@@ -1,8 +1,6 @@
 package model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.time.LocalTime;
@@ -21,4 +19,5 @@ public class Menu {
     private LocalTime cooktime;
 //    description VARCHAR(300)
     private String description;
+
 }

@@ -21,12 +21,13 @@ public class H2UserDao implements UserDao {
             "u.nickname,u.password,u.address_id,a.city,a.street,a.house,a.flat,telephone" +
             " FROM User u, Address a " +
             "WHERE u.address_id=a.id";
-    public static final String DELETE_FROM_USER_SQL = "DELETE FROM User WHERE ?=?";
-    public static final String UPDATE_USER_SQL = "UPDATE User SET ?=? WHERE id=?";
+    public static final String DELETE_FROM_USER_SQL = "DELETE FROM User WHERE %s=?";
+    public static final String UPDATE_USER_SQL = "UPDATE User SET %s=? WHERE id=?";
     public static final String INSERT_USER_SQL ="INSERT INTO User(name,lastname,fathername,dob," +
             "email,nickname,password,address_id,telephone)" +
             "VALUES(?,?,?,?,?,?,?,?,?)";
     public static final String SELECT_ONE_USER_SQL = "SELECT id,name,lastname,fathername,dob,email,nickname,password,address_id,telephone FROM User WHERE id=?";
+    public static final String SELECT_USER_COND_SQL = "SELECT id,name,lastname,fathername,dob,email,nickname,password,address_id,telephone FROM User WHERE %s=?";
 
     private DataSource dataSource;
     private Function<Integer,Address> getAddressId;
@@ -62,6 +63,29 @@ public class H2UserDao implements UserDao {
         }
     }
 
+    @Override
+    @SneakyThrows
+    public User get_cond(String field, String value) {
+        try(Connection conn = dataSource.getConnection();
+            PreparedStatement pst=conn.prepareStatement(String.format(SELECT_USER_COND_SQL, field))){
+            pst.setObject(1,value);
+            ResultSet rs=pst.executeQuery();
+            if(rs.next()){
+                return new User(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("lastname"),
+                        rs.getString("fathername"),
+                        rs.getDate("dob").toLocalDate(),
+                        rs.getString("email"),
+                        rs.getString("nickname"),
+                        rs.getString("password"),
+                        getAddressId.apply(rs.getInt("address_id")),
+                        rs.getString("telephone"));
+            }
+            else return null;
+        }
+    }
 
     @Override
     @SneakyThrows
@@ -96,11 +120,10 @@ public class H2UserDao implements UserDao {
     @SneakyThrows
     public User update(String field, String value, int id) {
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(UPDATE_USER_SQL))
+            PreparedStatement pst=conn.prepareStatement(String.format(UPDATE_USER_SQL,field)))
         {
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.setObject(3,id);
+            pst.setObject(1,value);
+            pst.setObject(2,id);
 
         }
         return get(id);
@@ -110,10 +133,9 @@ public class H2UserDao implements UserDao {
     @SneakyThrows
     public void remove(String field,String value) {
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(DELETE_FROM_USER_SQL)){
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.executeBatch();
+            PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_USER_SQL,field))){
+            pst.setObject(1,value);
+            pst.executeUpdate();
         }
 
     }

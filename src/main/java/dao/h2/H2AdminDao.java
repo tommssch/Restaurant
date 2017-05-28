@@ -19,14 +19,11 @@ public class H2AdminDao implements AdministrationDao {
 
     public static final String SELECT_ALL_SQL  = "SELECT id,name,lastname,fathername,dob,experience";
     public static final String INSERT_INTO_SQL = "INSERT INTO Administration(name,lastname,fathername,dob,experience)VALUES (?,?,?,?,?)";
-    public static final String DELETE_FROM_ADMIN_SQL = "DELETE FROM Administration WHERE ?=?";
-    public static final String UPDATE_ADMINISTRATION_SQL = "UPDATE Administration SET ?=? WHERE id=?";
+    public static final String DELETE_FROM_ADMIN_SQL = "DELETE FROM Administration WHERE %s=?";
+    public static final String UPDATE_ADMINISTRATION_SQL = "UPDATE Administration SET %s=? WHERE id=?";
     public static final String SELECT_ONE_ADMINISTRATION_SQL = "SELECT id,name,lastname,fathername,dob,experience FROM Administration WHERE id=?";
 
     private DataSource dataSource;
-
-
-
 
 
     public H2AdminDao(DataSource dataSource){
@@ -49,7 +46,7 @@ public class H2AdminDao implements AdministrationDao {
                         rs.getString("lastname"),
                         rs.getString("fathername"),
                         rs.getDate("dob").toLocalDate(),
-                        rs.getInt("experiance"));
+                        rs.getInt("experience"));
             }
             else return null;
         }
@@ -66,8 +63,7 @@ public class H2AdminDao implements AdministrationDao {
             pst.setObject(4,admin.getDob());
             pst.setObject(5,admin.getExperiance());
 
-
-            pst.executeBatch();
+            pst.executeUpdate();
 
             try(ResultSet generatedKeys=pst.getGeneratedKeys()){
                 admin.setId(generatedKeys.getInt(1));
@@ -84,13 +80,11 @@ public class H2AdminDao implements AdministrationDao {
     @SneakyThrows
     public Administration update(String field,String value,int id) {
         try(Connection con=dataSource.getConnection();
-            PreparedStatement pst=con.prepareStatement(UPDATE_ADMINISTRATION_SQL)){
+            PreparedStatement pst=con.prepareStatement(String.format(UPDATE_ADMINISTRATION_SQL,field))){
+            pst.setObject(1,value);
+            pst.setObject(2,id);
 
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.setObject(3,id);
-
-            pst.executeBatch();
+            pst.executeUpdate();
             }
         return get(id);
 
@@ -100,10 +94,9 @@ public class H2AdminDao implements AdministrationDao {
     @SneakyThrows
     public void remove(String field ,String value) {
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(DELETE_FROM_ADMIN_SQL)){
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.executeBatch();
+            PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_ADMIN_SQL,field))){
+            pst.setObject(1,value);
+            pst.executeUpdate();
         }
     }
 

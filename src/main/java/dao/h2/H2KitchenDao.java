@@ -21,8 +21,8 @@ public class H2KitchenDao implements KitchenDao {
 
     public static final String INSERT_INTO_KITCHEN_SQL = "INSERT INTO Kitchen(order_bill_id, menu_id, num_of_dishes)VALUES(?,?,?)";
     public static final String SELECT_ALL_KITCHEN_SQL = "SELECT id,order_bill_id,menu_id,num_of_dishes FROM Kitchen ";
-    public static final String DELETE_FROM_KITCHEN_SQL = "DELETE FROM Kitchen WHERE ?=?";
-    public static final String UPDATE_KITCHEN_SQL = "UPDATE Kitchen SET ?=? WHERE id=?";
+    public static final String DELETE_FROM_KITCHEN_SQL = "DELETE FROM Kitchen WHERE %s=?";
+    public static final String UPDATE_KITCHEN_SQL = "UPDATE Kitchen SET %s=? WHERE id=?";
     public static final String SELECT_ONE_KITCHEN_SQL="SELECT id,order_bill,menu_id,num_of_dishes FROM Kitchen WHERE id=?";
 
     private DataSource dataSource;
@@ -68,10 +68,9 @@ public class H2KitchenDao implements KitchenDao {
                 PreparedStatement pst=conn.prepareStatement(INSERT_INTO_KITCHEN_SQL)){
                 pst.setObject(1,kitchen.getOrder_bill());
                 pst.setObject(2,kitchen.getMenu());
-                pst.setObject(3,kitchen.getNum_off_dishes());
+                pst.setObject(3,kitchen.getNum_of_dishes());
 
-                pst.executeBatch();
-
+                pst.executeUpdate();
                 try(ResultSet rst=pst.getGeneratedKeys()){
                     if(rst.next()){
                         kitchen.setId(rst.getInt(1));
@@ -86,12 +85,11 @@ public class H2KitchenDao implements KitchenDao {
     public Kitchen update(String field, String value, int id) {
 
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(UPDATE_KITCHEN_SQL))
+            PreparedStatement pst=conn.prepareStatement(String.format(UPDATE_KITCHEN_SQL,field)))
         {
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.setObject(3,id);
-
+            pst.setObject(1,value);
+            pst.setObject(2,id);
+            pst.executeUpdate();
         }
         return get(id);
 
@@ -102,10 +100,10 @@ public class H2KitchenDao implements KitchenDao {
     public void remove(String field,String value) {
 
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(DELETE_FROM_KITCHEN_SQL)){
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.executeBatch();
+            PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_KITCHEN_SQL,field))){
+
+            pst.setObject(1,value);
+            pst.executeUpdate();
         }
     }
 

@@ -16,17 +16,17 @@ INSERT INTO User(name,lastname,fathername,dob,
             1,
             '987-48-98');
 
-INSERT INTO Menu(id,price,cooktime,description)
-    VALUES ('Котлетка по Киевски',99.9,
+INSERT INTO Menu(id,name,price,cooktime,description)
+    VALUES (1,'Котлетка по Киевски',99.9,
             '00:30:00',
             'Котлетка в панировке с использованием курицы');
 
-INSERT INTO Menu(id,price,cooktime,description)
+INSERT INTO Menu(name,price,cooktime,description)
 VALUES ('Кофе Эспрессо',180.0,
         '00:15:00',
         'Бодрящий кофе');
 
-INSERT INTO Menu(id,price,cooktime,description)
+INSERT INTO Menu(name,price,cooktime,description)
 VALUES ('Ванильное мороженно',50.0,
         '00:05:00',
         'Нежный пломбир');
@@ -41,4 +41,4 @@ INSERT INTO Order_Bill(user_id, administration_id)
   VALUES(1,1);
 
 INSERT INTO Kitchen(order_bill_id, menu_id, num_of_dishes)
-  VALUES(1,'Котлетка по Киевски',5);
+  VALUES(1,1,5);

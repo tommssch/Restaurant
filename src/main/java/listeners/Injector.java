@@ -2,7 +2,6 @@ package listeners;
 
 
 import dao.h2.*;
-import model.Address;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContextEvent;

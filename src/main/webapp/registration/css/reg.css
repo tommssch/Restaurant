@@ -1,0 +1,11 @@
+.centr{
+    margin: 0 auto;
+    width: 200px;
+    text-align: center;
+    overflow: auto;
+}
+form{
+    display: block;
+    width: 100px;
+
+}

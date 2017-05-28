@@ -21,8 +21,8 @@ public class H2OrderBillDao implements OrderBillDao{
 
     public static final String SELECT_ALL_ORDERS_SQL = "SELECT id,user_id,administration_id FROM Order_Bill";
     public static final String INSERT_INTO_ORDER_BILL_SQL = "INSERT INTO Order_Bill(user_id, administration_id)VALUES(?,?)";
-    public static final String DELETE_FROM_ORDER_SQL = "DELETE FROM Order_Bill WHERE ?=?";
-    public static final String UPDATE_ORDER_SQL = "UPDATE Order_Bill SET ?=? WHERE id=?";
+    public static final String DELETE_FROM_ORDER_SQL = "DELETE FROM Order_Bill WHERE %s=?";
+    public static final String UPDATE_ORDER_SQL = "UPDATE Order_Bill SET %s=? WHERE id=?";
     public static final String SELECT_ONE_ORDER_SQL="SELECT id,user_id,address_id FROM Order_Bill WHERE id=?";
     private DataSource dataSource;
     private Function<Integer, User> getUserId;
@@ -61,7 +61,7 @@ public class H2OrderBillDao implements OrderBillDao{
             pst.setObject(1,order_bill.getUser());
             pst.setObject(2,order_bill.getAdministration());
 
-            pst.executeBatch();
+            pst.executeUpdate();
 
             try(ResultSet rs=pst.getGeneratedKeys()){
                 if(rs.next()){
@@ -78,12 +78,11 @@ public class H2OrderBillDao implements OrderBillDao{
     @SneakyThrows
     public Order_Bill update(String field, String value, int id) {
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(UPDATE_ORDER_SQL))
+            PreparedStatement pst=conn.prepareStatement(String.format(UPDATE_ORDER_SQL,field)))
         {
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.setObject(3,id);
-
+            pst.setObject(1,value);
+            pst.setObject(2,id);
+            pst.executeUpdate();
         }
         return get(id);
 
@@ -93,10 +92,9 @@ public class H2OrderBillDao implements OrderBillDao{
     @SneakyThrows
     public void remove(String field, String value) {
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(DELETE_FROM_ORDER_SQL)){
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.executeBatch();
+            PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_ORDER_SQL,field))){
+            pst.setObject(1,value);
+            pst.executeUpdate();
         }
 
     }

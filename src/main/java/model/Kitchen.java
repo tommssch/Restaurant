@@ -17,6 +17,6 @@ public class Kitchen {
 //    menu_id       VARCHAR(100) NOT NULL,
     private Menu menu;
 //    num_of_dishes INT          NOT NULL,
-    private int num_off_dishes;
+    private int num_of_dishes;
 
 }

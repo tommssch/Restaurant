@@ -7,6 +7,7 @@ import model.Address;
 
 
 import javax.sql.DataSource;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,8 +21,8 @@ public class H2AddressDao implements AddressDao {
 
     public static final String INSERT_INTO_ADDRESS_SQL = "INSERT INTO Address(city,street,house,flat)VALUES(?,?,?,?)";
     public static final String SELECT_ALL_ADDRESSES_SQL = "SELECT id,city,street,house,flat FROM Address";
-    public static final String UPDATE_ADDRESS_SQL = "UPDATE Address SET ?=? WHERE id=?";
-    public static final String DELETE_FROM_ADDRESS_SQL="DELETE FROM Address WHERE ?=?";
+    public static final String UPDATE_ADDRESS_SQL = "UPDATE Address SET %s=? WHERE id=?";
+    public static final String DELETE_FROM_ADDRESS_SQL="DELETE FROM Address WHERE %s=?";
     public static final String SELECT_ONE_ADDRESS_SQL = "SELECT id,city,street,house,flat FROM Address WHERE id=?";
     private DataSource dataSource;
 
@@ -58,13 +59,12 @@ public class H2AddressDao implements AddressDao {
     public int save(Address address) {
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(INSERT_INTO_ADDRESS_SQL)) {
-            pst.setObject(1,address.getCity());
-            pst.setObject(2,address.getStreet());
-            pst.setObject(3,address.getHouse());
+            pst.setObject(1,new String(address.getCity().getBytes(), Charset.defaultCharset()));
+            pst.setObject(2,new String(address.getStreet().getBytes(),Charset.defaultCharset()));
+            pst.setObject(3,new String(address.getHouse().getBytes(),Charset.defaultCharset()));
             pst.setObject(4,address.getFlat());
 
-            pst.executeBatch();
-
+            pst.executeUpdate();
             try(ResultSet rs= pst.getGeneratedKeys()){
                 if(rs.next()){
                     address.setId(rs.getInt(1));
@@ -80,12 +80,11 @@ public class H2AddressDao implements AddressDao {
     @SuppressWarnings("Duplicates")
     public Address update(String field, String value, int id) {
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(UPDATE_ADDRESS_SQL)){
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.setObject(3,id);
+            PreparedStatement pst=conn.prepareStatement(String.format(UPDATE_ADDRESS_SQL,field))){
+            pst.setObject(1,value);
+            pst.setObject(2,id);
 
-            pst.executeBatch();
+            pst.executeUpdate();
         }
         return get(id);
     }
@@ -94,10 +93,9 @@ public class H2AddressDao implements AddressDao {
     @SneakyThrows
     public void remove(String field,String value) {
         try(Connection conn=dataSource.getConnection();
-            PreparedStatement pst=conn.prepareStatement(DELETE_FROM_ADDRESS_SQL)){
-            pst.setObject(1,field);
-            pst.setObject(2,value);
-            pst.executeBatch();
+            PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_ADDRESS_SQL,field))){
+            pst.setObject(1,value);
+            pst.executeUpdate();
         }
     }
 
