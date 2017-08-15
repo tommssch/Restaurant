@@ -19,19 +19,21 @@ import java.util.function.Function;
 
 public class H2KitchenDao implements KitchenDao {
 
-    public static final String INSERT_INTO_KITCHEN_SQL = "INSERT INTO Kitchen(order_bill_id, menu_id, num_of_dishes)VALUES(?,?,?)";
-    public static final String SELECT_ALL_KITCHEN_SQL = "SELECT id,order_bill_id,menu_id,num_of_dishes FROM Kitchen ";
-    public static final String DELETE_FROM_KITCHEN_SQL = "DELETE FROM Kitchen WHERE %s=?";
-    public static final String UPDATE_KITCHEN_SQL = "UPDATE Kitchen SET %s=? WHERE id=?";
-    public static final String SELECT_ONE_KITCHEN_SQL="SELECT id,order_bill,menu_id,num_of_dishes FROM Kitchen WHERE id=?";
+    private static final String INSERT_INTO_KITCHEN_SQL = "INSERT INTO Kitchen(order_bill_id, menu_id, num_of_dishes)VALUES(?,?,?)";
+    private static final String SELECT_ALL_KITCHEN_SQL = "SELECT id,order_bill_id,menu_id,num_of_dishes FROM Kitchen ";
+    private static final String DELETE_FROM_KITCHEN_SQL = "DELETE FROM Kitchen WHERE %s=?";
+    private static final String UPDATE_KITCHEN_SQL = "UPDATE Kitchen SET %s=? WHERE id=?";
+    private static final String SELECT_ONE_KITCHEN_SQL="SELECT id,order_bill_id,menu_id,num_of_dishes FROM Kitchen WHERE id=?";
+    private static final String SELECT_ALL_KITCHEN_SQL_CONDITION = "SELECT id,order_bill_id,menu_id,num_of_dishes FROM Kitchen WHERE %s=?";
+
 
     private DataSource dataSource;
-    private Function<String, Menu> getMenuId;
+    private Function<Integer, Menu> getMenuId;
     private Function<Integer, Order_Bill> getOrderId;
 
 
 
-    public H2KitchenDao(DataSource dataSource,Function<String,Menu> getMenuId,
+    public H2KitchenDao(DataSource dataSource,Function<Integer,Menu> getMenuId,
                         Function<Integer,Order_Bill> getOrderId)
     {
         this.getMenuId=getMenuId;
@@ -51,7 +53,7 @@ public class H2KitchenDao implements KitchenDao {
                 return new Kitchen(
                         rs.getInt("id"),
                         getOrderId.apply(rs.getInt("order_bill_id")),
-                        getMenuId.apply(rs.getString("menu_id")),
+                        getMenuId.apply(rs.getInt("menu_id")),
                         rs.getInt("num_of_dishes"));
             }
             else return null;
@@ -82,7 +84,27 @@ public class H2KitchenDao implements KitchenDao {
 
     @Override
     @SneakyThrows
-    public Kitchen update(String field, String value, int id) {
+    public <T> Collection<Kitchen> get_cond(String field, T value) {
+        Collection<Kitchen> kitchens= new ArrayList<>();
+        try(Connection con=dataSource.getConnection();
+            PreparedStatement pst=con.prepareStatement(String.format(SELECT_ALL_KITCHEN_SQL_CONDITION,field))){
+            pst.setObject(1,value);
+            ResultSet rs=pst.executeQuery();
+            while (rs.next()){
+                kitchens.add(new Kitchen(
+                        rs.getInt("id"),
+                        getOrderId.apply(rs.getInt("order_bill_id")),
+                        getMenuId.apply(rs.getInt("menu_id")),
+                        rs.getInt("num_of_dishes")));
+            }
+
+            return kitchens;
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public <T> Kitchen update(String field,T value, int id) {
 
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(String.format(UPDATE_KITCHEN_SQL,field)))
@@ -97,7 +119,7 @@ public class H2KitchenDao implements KitchenDao {
 
     @Override
     @SneakyThrows
-    public void remove(String field,String value) {
+    public <T> void remove(String field,T value) {
 
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_KITCHEN_SQL,field))){
@@ -118,7 +140,7 @@ public class H2KitchenDao implements KitchenDao {
                     kitchen.add(new Kitchen(
                             rs.getInt("id"),
                             getOrderId.apply(rs.getInt("order_bill_id")),
-                            getMenuId.apply(rs.getString("menu_id")),
+                            getMenuId.apply(rs.getInt("menu_id")),
                             rs.getInt("num_of_dishes")));
                 }
 

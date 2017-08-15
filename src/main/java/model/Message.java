@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Messages {
+public class Message {
     //id INT AUTO_INCREMENT PRIMARY KEY
     private int id;
     //user_from_id INT NOT NULL

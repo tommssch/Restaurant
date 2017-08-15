@@ -39,9 +39,8 @@ private static boolean emptyFields(User user) {
             user.getNickname().equals("");
 }
 private static boolean userExists(User user, UserDao ud) {
-
-    return ud.get_cond("nickname", user.getNickname()) != null ||
-           ud.get_cond("email", user.getEmail()) != null;
+    return ud.get_cond("nickname", user.getNickname()).size() != 0 ||
+            ud.get_cond("email", user.getEmail()).size() != 0;
 }
 private static boolean validEmail(User user){
     return Pattern.compile(VALID_MAIL).matcher(user.getEmail()).matches();

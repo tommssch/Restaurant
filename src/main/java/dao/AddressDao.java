@@ -5,7 +5,7 @@ import model.Address;
 
 
 import java.util.Collection;
-import java.util.Optional;
+
 
 public interface AddressDao {
 
@@ -13,9 +13,11 @@ public interface AddressDao {
 
     Address get(int id);
 
-    Address update(String field, String value, int id);
+   <T> Collection<Address> get_cond(String field,T value);
 
-    void remove(String field,String value);
+   <T> Address update(String field,T value, int id);
+
+   <T> void remove(String field,T value);
 
     Collection<Address> getAll();
 }

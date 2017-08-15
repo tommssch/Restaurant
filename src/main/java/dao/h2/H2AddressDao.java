@@ -1,7 +1,6 @@
 package dao.h2;
 
 import dao.AddressDao;
-import lombok.Data;
 import lombok.SneakyThrows;
 import model.Address;
 
@@ -15,15 +14,15 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 public class H2AddressDao implements AddressDao {
 
-    public static final String INSERT_INTO_ADDRESS_SQL = "INSERT INTO Address(city,street,house,flat)VALUES(?,?,?,?)";
-    public static final String SELECT_ALL_ADDRESSES_SQL = "SELECT id,city,street,house,flat FROM Address";
-    public static final String UPDATE_ADDRESS_SQL = "UPDATE Address SET %s=? WHERE id=?";
-    public static final String DELETE_FROM_ADDRESS_SQL="DELETE FROM Address WHERE %s=?";
-    public static final String SELECT_ONE_ADDRESS_SQL = "SELECT id,city,street,house,flat FROM Address WHERE id=?";
+    private static final String INSERT_INTO_ADDRESS_SQL = "INSERT INTO Address(city,street,house,flat)VALUES(?,?,?,?)";
+    private static final String SELECT_ALL_ADDRESSES_SQL = "SELECT id,city,street,house,flat FROM Address";
+    private static final String UPDATE_ADDRESS_SQL = "UPDATE Address SET %s=? WHERE id=?";
+    private static final String DELETE_FROM_ADDRESS_SQL="DELETE FROM Address WHERE %s=?";
+    private static final String SELECT_ONE_ADDRESS_SQL = "SELECT id,city,street,house,flat FROM Address WHERE id=?";
+    private static final String SELECT_ALL_ADDRESS_CONDITION = "SELECT id,city,street,house,flat FROM Address WHERE %s=?";
     private DataSource dataSource;
 
 
@@ -56,6 +55,27 @@ public class H2AddressDao implements AddressDao {
 
     @Override
     @SneakyThrows
+    public <T> Collection<Address> get_cond(String field, T value) {
+        Collection<Address> addresses= new ArrayList<>();
+
+        try(Connection conn=dataSource.getConnection();
+            PreparedStatement pst=conn.prepareStatement(String.format(SELECT_ALL_ADDRESS_CONDITION,field))) {
+            pst.setObject(1,value);
+            ResultSet rs=pst.executeQuery();
+            while(rs.next()){
+                addresses.add(new Address(
+                        rs.getInt("id"),
+                        rs.getString("city"),
+                        rs.getString("street"),
+                        rs.getString("house"),
+                        rs.getInt("flat")));
+            }
+            return addresses;
+        }
+    }
+
+    @Override
+    @SneakyThrows
     public int save(Address address) {
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(INSERT_INTO_ADDRESS_SQL)) {
@@ -78,7 +98,7 @@ public class H2AddressDao implements AddressDao {
     @Override
     @SneakyThrows
     @SuppressWarnings("Duplicates")
-    public Address update(String field, String value, int id) {
+    public <T> Address update(String field, T value, int id) {
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(String.format(UPDATE_ADDRESS_SQL,field))){
             pst.setObject(1,value);
@@ -91,7 +111,7 @@ public class H2AddressDao implements AddressDao {
 
     @Override
     @SneakyThrows
-    public void remove(String field,String value) {
+    public <T> void remove(String field,T value) {
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_ADDRESS_SQL,field))){
             pst.setObject(1,value);

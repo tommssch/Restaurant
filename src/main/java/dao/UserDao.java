@@ -1,22 +1,19 @@
 package dao;
 
 import model.User;
-
 import java.util.Collection;
-import java.util.Optional;
 
 public interface UserDao {
 
-
-
-    User get_cond(String field,String value);
+    <T> Collection<User> get_cond(String field, T value);
 
     int create(User user);
 
     User get(int id);
-    User update(String field,String value,int id);
 
-    void remove(String field ,String value);
+    <T> User update(String field,T value,int id);
+
+    <T> void remove(String field,T value);
 
     Collection<User> getAll();
 }

@@ -23,6 +23,7 @@ public class Injector implements ServletContextListener {
         H2UserDao userDao= new H2UserDao(dataSource, addressDao::get);
         H2OrderBillDao orderBillDao=new H2OrderBillDao(dataSource,userDao::get,adminDao::get);
         H2KitchenDao kitchenDao=new H2KitchenDao(dataSource,menuDao::get,orderBillDao::get);
+        H2MessageDao messageDao=new H2MessageDao(dataSource,userDao::get);
 
         sce.getServletContext().setAttribute("AddressDao",addressDao);
         sce.getServletContext().setAttribute("AdministrationDao",adminDao);
@@ -30,6 +31,7 @@ public class Injector implements ServletContextListener {
         sce.getServletContext().setAttribute("MenuDao",menuDao);
         sce.getServletContext().setAttribute("OrderBillDao",orderBillDao);
         sce.getServletContext().setAttribute("KitchenDao",kitchenDao);
+        sce.getServletContext().setAttribute("MessageDao",messageDao);
 
     }
 

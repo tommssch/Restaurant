@@ -3,6 +3,7 @@ package model;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+
 import java.time.LocalTime;
 
 @Data
@@ -11,8 +12,10 @@ import java.time.LocalTime;
 @Accessors(chain = true)
 public class Menu {
 
-//    id          VARCHAR(100) PRIMARY KEY,
-    private String id;
+//    id          INT PRIMARY KEY,
+    private int id;
+//    name  VARCHAR(100),
+    private String name;
 //    price       FLOAT NOT NULL,
     private float price;
 //    cooktime    TIME  NOT NULL,

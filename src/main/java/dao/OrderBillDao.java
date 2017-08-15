@@ -3,7 +3,6 @@ package dao;
 import model.Order_Bill;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public interface OrderBillDao {
 
@@ -11,9 +10,11 @@ public interface OrderBillDao {
 
     Order_Bill get(int id);
 
-   Order_Bill update(String field,String value,int id);
+    <T> Collection<Order_Bill> get_cond(String field,T value);
 
-   void remove(String field,String value);
+    <T> Order_Bill update(String field,T value,int id);
+
+    <T> void remove(String field,T value);
 
     Collection<Order_Bill> getAll();
 }

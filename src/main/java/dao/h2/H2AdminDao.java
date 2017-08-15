@@ -13,15 +13,15 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 public class H2AdminDao implements AdministrationDao {
 
-    public static final String SELECT_ALL_SQL  = "SELECT id,name,lastname,fathername,dob,experience";
-    public static final String INSERT_INTO_SQL = "INSERT INTO Administration(name,lastname,fathername,dob,experience)VALUES (?,?,?,?,?)";
-    public static final String DELETE_FROM_ADMIN_SQL = "DELETE FROM Administration WHERE %s=?";
-    public static final String UPDATE_ADMINISTRATION_SQL = "UPDATE Administration SET %s=? WHERE id=?";
-    public static final String SELECT_ONE_ADMINISTRATION_SQL = "SELECT id,name,lastname,fathername,dob,experience FROM Administration WHERE id=?";
+    private static final String SELECT_ALL_SQL  = "SELECT id,name,lastname,fathername,dob,experience FROM Administration";
+    private static final String INSERT_INTO_SQL = "INSERT INTO Administration(name,lastname,fathername,dob,experience)VALUES (?,?,?,?,?)";
+    private static final String DELETE_FROM_ADMIN_SQL = "DELETE FROM Administration WHERE %s=?";
+    private static final String UPDATE_ADMINISTRATION_SQL = "UPDATE Administration SET %s=? WHERE id=?";
+    private static final String SELECT_ONE_ADMINISTRATION_SQL = "SELECT id,name,lastname,fathername,dob,experience FROM Administration WHERE id=?";
+    private static final String SELECT_ALL_ADMINISTRATION_CONDITION = "SELECT id,name,lastname,fathername,dob,experience FROM Administration WHERE %s=?";
 
     private DataSource dataSource;
 
@@ -52,6 +52,28 @@ public class H2AdminDao implements AdministrationDao {
         }
     }
 
+    @SneakyThrows
+    @Override
+    public <T> Collection<Administration> get_cond(String field, T value){
+        Collection<Administration> admins= new ArrayList<>();
+        try(Connection con=dataSource.getConnection();
+            PreparedStatement pst=con.prepareStatement(String.format(SELECT_ALL_ADMINISTRATION_CONDITION,field))){
+            pst.setObject(1,value);
+            ResultSet rs=pst.executeQuery();
+            while(rs.next()){
+                admins.add(new Administration(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("lastname"),
+                        rs.getString("fathername"),
+                        rs.getDate("dob").toLocalDate(),
+                        rs.getInt("experience")
+                ));
+            }
+            return admins;
+        }
+    }
+
     @Override
     @SneakyThrows
     public int save(Administration admin) {
@@ -78,7 +100,7 @@ public class H2AdminDao implements AdministrationDao {
     @SuppressWarnings("Duplicates")
     @Override
     @SneakyThrows
-    public Administration update(String field,String value,int id) {
+    public <T> Administration update(String field,T value,int id) {
         try(Connection con=dataSource.getConnection();
             PreparedStatement pst=con.prepareStatement(String.format(UPDATE_ADMINISTRATION_SQL,field))){
             pst.setObject(1,value);
@@ -92,7 +114,7 @@ public class H2AdminDao implements AdministrationDao {
 
     @Override
     @SneakyThrows
-    public void remove(String field ,String value) {
+    public <T> void remove(String field ,T value) {
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_ADMIN_SQL,field))){
             pst.setObject(1,value);

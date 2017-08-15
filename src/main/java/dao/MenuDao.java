@@ -1,22 +1,20 @@
 package dao;
 
-import model.Administration;
 import model.Menu;
 
 import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
 
 public interface MenuDao {
 
-    String save(Menu menu);
+    int save(Menu menu);
 
+    <T> Collection<Menu> get_cond(String field,T value);
 
-    Menu get(String id);
-    Menu update(String field,String value,String id);
+    Menu get(int id);
 
-    void remove(String field ,String value);
+    <T> Menu update(String field,T value,int id);
 
+    <T> void remove(String field ,T value);
 
     Collection<Menu> getAll();
 

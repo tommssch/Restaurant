@@ -2,8 +2,8 @@ package controllers;
 
 
 import dao.AddressDao;
+import dao.MenuDao;
 import dao.UserDao;
-import dao.h2.H2UserDao;
 import handlers.data_valid.validAddress;
 import handlers.data_valid.validUser;
 import handlers.pass_valid.PBKDFToPass;
@@ -17,8 +17,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.time.LocalDate;
 
 
@@ -27,10 +25,12 @@ public class RegistrationController extends HttpServlet {
 
     private UserDao usrDao;
     private AddressDao addrDao;
+    private MenuDao menuDao;
     @Override
     public void init(ServletConfig config) throws ServletException {
         addrDao=(AddressDao) config.getServletContext().getAttribute("AddressDao");
         usrDao=(UserDao) config.getServletContext().getAttribute("UserDao");
+        menuDao=(MenuDao) config.getServletContext().getAttribute("MenuDao");
     }
 
     @Override
@@ -43,6 +43,7 @@ public class RegistrationController extends HttpServlet {
                 req.getParameter("flat").equals("") ? 0
                         : Integer.parseInt(req.getParameter("flat")));
         if(!validAddress.validMessage(address).equals("OK")){
+            System.out.println(validAddress.validMessage(address));
             req.getRequestDispatcher("/registration/").forward(req,resp);
             return;
         }
@@ -58,16 +59,16 @@ public class RegistrationController extends HttpServlet {
                 PBKDFToPass.generatePassHash(req.getParameter("pass")),
                 address,
                 req.getParameter("phone"));
-
         if(!validUser.validMessage(user,usrDao).equals("OK")) {
+            System.out.println(validUser.validMessage(user,usrDao));
             req.getRequestDispatcher("/registration/").forward(req,resp);
+
         }
         else {
             addrDao.save(address);
             usrDao.create(user);
-            req.getRequestDispatcher("/index.jsp").forward(req, resp);
+            req.setAttribute(WelcomeController.ALL_MENU_KEY,menuDao.getAll());
+            req.getRequestDispatcher("WEB-INF/index.jsp").forward(req, resp);
         }
     }
-
-
 }

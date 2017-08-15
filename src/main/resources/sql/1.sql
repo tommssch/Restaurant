@@ -64,7 +64,7 @@ CREATE TABLE  Messages (
   user_from_id INT NOT NULL ,
   user_to_id INT NOT NULL ,
   message VARCHAR(1000) NOT NULL ,
-  send_datetime DATETIME NOT NULL ,
+  send_datetime TIMESTAMP(12) NOT NULL ,
   FOREIGN KEY (user_from_id) REFERENCES User(id),
   FOREIGN KEY (user_to_id) REFERENCES User(id)
 );

@@ -14,16 +14,17 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class H2OrderBillDao implements OrderBillDao{
 
-    public static final String SELECT_ALL_ORDERS_SQL = "SELECT id,user_id,administration_id FROM Order_Bill";
-    public static final String INSERT_INTO_ORDER_BILL_SQL = "INSERT INTO Order_Bill(user_id, administration_id)VALUES(?,?)";
-    public static final String DELETE_FROM_ORDER_SQL = "DELETE FROM Order_Bill WHERE %s=?";
-    public static final String UPDATE_ORDER_SQL = "UPDATE Order_Bill SET %s=? WHERE id=?";
-    public static final String SELECT_ONE_ORDER_SQL="SELECT id,user_id,address_id FROM Order_Bill WHERE id=?";
+    private static final String SELECT_ALL_ORDERS_SQL = "SELECT id,user_id,administration_id FROM Order_Bill";
+    private static final String INSERT_INTO_ORDER_BILL_SQL = "INSERT INTO Order_Bill(user_id, administration_id)VALUES(?,?)";
+    private static final String DELETE_FROM_ORDER_SQL = "DELETE FROM Order_Bill WHERE %s=?";
+    private static final String UPDATE_ORDER_SQL = "UPDATE Order_Bill SET %s=? WHERE id=?";
+    private static final String SELECT_ONE_ORDER_SQL="SELECT id,user_id,administration_id FROM Order_Bill WHERE id=?";
+    private  static final String SELECT_ALL_ORDERS_CONDITION = "SELECT id,user_id,administration_id FROM Order_Bill WHERE %s=?";
+
     private DataSource dataSource;
     private Function<Integer, User> getUserId;
     private Function<Integer, Administration> getAdminId;
@@ -53,6 +54,27 @@ public class H2OrderBillDao implements OrderBillDao{
             else return null;
         }
     }
+
+    @Override
+    @SneakyThrows
+    public <T> Collection<Order_Bill> get_cond(String field, T value) {
+        Collection<Order_Bill> order_bills=new ArrayList<>();
+        try(Connection conn=dataSource.getConnection();
+            PreparedStatement pst=conn.prepareStatement(String.format(SELECT_ALL_ORDERS_CONDITION,field)))
+        {
+            pst.setObject(1,value);
+            ResultSet rs=pst.executeQuery();
+            while(rs.next()){
+                order_bills.add(new Order_Bill(
+                        rs.getInt("id"),
+                        getUserId.apply(rs.getInt("user_id")),
+                        getAdminId.apply(rs.getInt("administration_id"))));
+            }
+
+        }
+        return order_bills;
+    }
+
     @Override
     @SneakyThrows
     public int save(Order_Bill order_bill) {
@@ -76,7 +98,7 @@ public class H2OrderBillDao implements OrderBillDao{
 
     @Override
     @SneakyThrows
-    public Order_Bill update(String field, String value, int id) {
+    public <T> Order_Bill update(String field, T value, int id) {
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(String.format(UPDATE_ORDER_SQL,field)))
         {
@@ -90,7 +112,7 @@ public class H2OrderBillDao implements OrderBillDao{
 
     @Override
     @SneakyThrows
-    public void remove(String field, String value) {
+    public <T> void remove(String field, T value) {
         try(Connection conn=dataSource.getConnection();
             PreparedStatement pst=conn.prepareStatement(String.format(DELETE_FROM_ORDER_SQL,field))){
             pst.setObject(1,value);

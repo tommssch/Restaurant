@@ -3,7 +3,6 @@ package dao;
 import model.Kitchen;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public interface KitchenDao {
 
@@ -11,9 +10,11 @@ public interface KitchenDao {
 
     int save(Kitchen kitchen);
 
-    Kitchen update(String field,String value,int id);
+    <T> Collection<Kitchen> get_cond(String field,T value);
 
-    void remove(String field,String value);
+    <T> Kitchen update(String field,T value,int id);
+
+    <T> void remove(String field,T value);
 
     Collection<Kitchen> getAll();
 }

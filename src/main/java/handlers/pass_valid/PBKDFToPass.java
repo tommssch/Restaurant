@@ -1,7 +1,4 @@
 package handlers.pass_valid;
-
-
-import com.sun.crypto.provider.PBKDF2HmacSHA1Factory;
 import lombok.SneakyThrows;
 
 import javax.crypto.SecretKeyFactory;
@@ -36,5 +33,4 @@ private static String toHex(byte[] arr){
     else
         return hex;
 }
-
 }

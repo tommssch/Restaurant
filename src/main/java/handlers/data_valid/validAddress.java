@@ -57,7 +57,7 @@ public class validAddress {
     }
     @SneakyThrows
     private static boolean validHouse(Address address){
-        return Pattern.compile(new String(VALID_HOUSE.getBytes(),"UTF-8")).matcher(address.getStreet()).matches();
+        return Pattern.compile(new String(VALID_HOUSE.getBytes(),"UTF-8")).matcher(address.getHouse()).matches();
     }@SneakyThrows
     private static boolean validLang(Address address){
         Pattern pat=Pattern.compile(new String(VALID_LANG.getBytes(),"UTF-8"));

@@ -4,7 +4,6 @@ package dao;
 import model.Administration;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public interface AdministrationDao {
 
@@ -12,9 +11,11 @@ public interface AdministrationDao {
 
     Administration get(int id);
 
-    Administration update(String field,String value,int id);
+   <T> Collection<Administration> get_cond(String field,T value);
 
-    void remove(String field ,String value);
+   <T> Administration update(String field,T value,int id);
+
+   <T> void remove(String field ,T value);
 
     Collection<Administration> getAll();
 
